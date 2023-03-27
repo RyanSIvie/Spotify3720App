@@ -1,10 +1,14 @@
 .App {
-
+  height: 100vh;
 }
 
-.header-text {
+.header {
   text-align: center;
   color: #fff;
+}
+
+.content {
+  align-items: center;
 }
 
 footer {

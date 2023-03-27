@@ -1,0 +1,1 @@
+Install nodejs, react then run "npm install", "npm start".

@@ -6,7 +6,7 @@ const ModeSelection = () => {
             <Col span={4} offset={10}>
                 <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
                     <h1>Choose your game!</h1>
-                    <Link to="/level"><Button type="primary" size='large' block>Top 100 Song</Button></Link>
+                    <Link to="/level"><Button type="primary" size='large' block>Top 50 Songs</Button></Link>
                     <Link to="/level"><Button type="primary" size='large' block>What's that Playlist?</Button></Link>
                 </Space>
             </Col>
