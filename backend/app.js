@@ -96,13 +96,12 @@ function SongGuessingGame() {
                             </li>
                         ))}
                     </ul>
-                    {guess !== null && (
-                        <p>{guess ? "Correct!" : "Incorrect"}</p>
-                    )}
-                    <button onClick={startGame}>Start game</button>
+                    <p>Guesses left: {guessesLeft}</p>
                 </div>
             ) : (
-                <p>Loading...</p>
+                <div>
+                    <button onClick={startGame}>Start game</button>
+                </div>
             )}
         </div>
     );
