@@ -5,11 +5,11 @@ import { Row, Col, Button, Tooltip } from 'antd';
 import 'antd/dist/reset.css';
 import './App.css';
 import Home from "./pages/Home";
-import ModeSelection from "./pages/ModeSelection";
-import LevelSelection from "./pages/LevelSelection";
-import Play from "./pages/Play";
+import SelectGame from "./pages/SelectGame";
 import { useState, useEffect } from "react";
 import SpotifyWebApi from 'spotify-web-api-js';
+import SongGuessingGame from "./pages/SongGuesingGame";
+import PlaylistGuessingGame from "./pages/PlaylistGuessingGame";
 
 
 const { Header, Footer, Content } = Layout;
@@ -77,10 +77,10 @@ function App() {
       <Content className="content">
         <BrowserRouter>
           <Routes>
-            <Route index element={!token ? <Home /> : <Navigate to="/mode" />} />
-            <Route path="mode" element={token ? <ModeSelection /> : <Navigate to="/" />} />
-            <Route path="level" element={token ? <LevelSelection /> : <Navigate to="/" />} />
-            <Route path="play" element={token ? <Play /> : <Navigate to="/" />} />
+            <Route index element={!token ? <Home /> : <Navigate to="/select-game" />} />
+            <Route path="select-game" element={token ? <SelectGame /> : <Navigate to="/" />} />
+            <Route path="song-guessing-game" element={token ? <SongGuessingGame /> : <Navigate to="/" />} />
+            <Route path="playlist-guessing-game" element={token ? <PlaylistGuessingGame /> : <Navigate to="/" />} />
           </Routes>
         </BrowserRouter>
         <Outlet />
