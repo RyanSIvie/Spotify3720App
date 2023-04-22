@@ -15,8 +15,9 @@ All you need to do is login with Spotify. You will then be able to play the two 
 
 ## Dev Quickstart Guide
 ### Installation
-Install node.js and react
-To install the  dependencies of the app.js, run:
+- Install node.js
++ Install react
+* To install the  dependencies of the app.js, run:
 `npm install` or `npm i`
 ### .env API Keys
 For security reasons, none of the API keys are included. To start the `apps.js` server, first create a `.env` file and add your keys:
