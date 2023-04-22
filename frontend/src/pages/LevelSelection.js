@@ -9,8 +9,8 @@ const LevelSelection = () => {
                 <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
                     <h1>Choose you difficulty!</h1>
                     <Link to="/song-guessing"><Button type="primary" size='large' block>Easy</Button></Link>
-                    <Link to="/play"><Button type="primary" size='large' block>Medium</Button></Link>
-                    <Link to="/play"><Button type="primary" size='large' block>Hard</Button></Link>
+                    <Link to="/song-guessing"><Button type="primary" size='large' block>Medium</Button></Link>
+                    <Link to="/song-guessing"><Button type="primary" size='large' block>Hard</Button></Link>
                 </Space>
             </Col>
         </Row>

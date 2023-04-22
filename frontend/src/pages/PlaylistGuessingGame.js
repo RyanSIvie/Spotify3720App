@@ -12,17 +12,18 @@ function PlaylistGuessingGame() {
 
   useEffect(() => {
     const token = window.localStorage.getItem("token");
-        if (token) {
-            spotifyApi.setAccessToken(token);
-            spotifyApi.getUserPlaylists().then((data) => {
-                const userPlaylists = data.items.filter((item) => item.owner.id === data.owner.id);
-                if (userPlaylists.length >= 4) {
-                  setPlaylists(userPlaylists.slice(0, 4));
-                  setCurrentPlaylistIndex(Math.floor(Math.random() * 4));
-                }
-              });
+    if (token) {
+      spotifyApi.setAccessToken(token);
+      spotifyApi.getUserPlaylists().then((data) => {
+        const userPlaylists = data.items.filter(
+          (item) => item.owner.id === data.owner.id
+        );
+        if (userPlaylists.length >= 4) {
+          setPlaylists(userPlaylists.slice(0, 4));
+          setCurrentPlaylistIndex(Math.floor(Math.random() * 4));
         }
-    
+      });
+    }
   }, []);
 
   useEffect(() => {
@@ -60,7 +61,10 @@ function PlaylistGuessingGame() {
   return (
     <div>
       <h1>Playlist Guessing Game</h1>
-      <img src={playlists[currentPlaylistIndex].images[0].url} alt="Playlist artwork" />
+      <img
+        src={playlists[currentPlaylistIndex].images[0].url}
+        alt="Playlist artwork"
+      />
       <div>
         {options.map((option, index) => (
           <button key={index} onClick={() => handleGuess(option)}>
