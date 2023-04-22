@@ -15,8 +15,7 @@ All you need to do is login with Spotify. You will then be able to play the two 
 
 ## Dev Quickstart Guide
 ### Installation
-Install node.js
-Install react
+Install node.js and react
 To install the  dependencies of the app.js, run:
 `npm install` or `npm i`
 ### .env API Keys
