@@ -102,7 +102,7 @@ function SongGuessingGame() {
             spotifyApi.setAccessToken(token);
             // Get the user's top 50 songs from Spotify
             spotifyApi
-                .getMyTopTracks({ time_range: "long_term", limit: 5 })
+                .getMyTopTracks({ time_range: "long_term", limit: 50 })
                 .then((response) => {
                     setSongs(response.items);
                 });
