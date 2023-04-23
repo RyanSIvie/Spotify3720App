@@ -1,35 +1,195 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import SpotifyWebApi from "spotify-web-api-js";
+import { Button, Modal, Image } from "antd";
 
 const spotifyApi = new SpotifyWebApi();
+function useInterval(callback, delay) {
+    const savedCallback = useRef(callback)
+
+    // Remember the latest callback if it changes.
+    useEffect(() => {
+        savedCallback.current = callback
+    }, [callback])
+
+    useEffect(() => {
+        if (!delay && delay !== 0) {
+            return;
+        }
+        const interval = setInterval(() => savedCallback.current(), delay);
+        return () => clearInterval(interval);
+    }, [delay])
+}
+
+function useCounter(initialValue) {
+    const [count, setCount] = useState(initialValue || 0)
+
+    const increment = () => setCount(x => x + 1)
+    const decrement = () => setCount(x => x - 1)
+    const reset = () => setCount(initialValue || 0)
+
+    return {
+        count,
+        increment,
+        decrement,
+        reset,
+        setCount,
+    }
+}
+
+function useBoolean(defaultValue) {
+    const [value, setValue] = useState(!!defaultValue)
+
+    const setTrue = useCallback(() => setValue(true), [])
+    const setFalse = useCallback(() => setValue(false), [])
+    const toggle = useCallback(() => setValue(x => !x), [])
+
+    return { value, setValue, setTrue, setFalse, toggle }
+}
+
+function useCountdown(countStart, intervalMs) {
+    const {
+        count,
+        decrement,
+        reset: resetCounter,
+    } = useCounter(countStart)
+
+    const {
+        value: isCountdownRunning,
+        setTrue: startCountdown,
+        setFalse: stopCountdown,
+    } = useBoolean(false)
+
+    const resetCountdown = () => {
+        stopCountdown()
+        resetCounter()
+    }
+
+    const countdownCallback = useCallback(() => {
+        if (count === 0) {
+            stopCountdown()
+            return
+        }
+        decrement()
+    }, [count, decrement, stopCountdown])
+
+    useInterval(countdownCallback, isCountdownRunning ? intervalMs : null)
+
+    return [count, { startCountdown, stopCountdown, resetCountdown }]
+}
 
 function SongGuessingGame() {
-    
     const [songs, setSongs] = useState([]);
-    const [selectedSong, setSelectedSong] = useState(null);
+    const [difficulty, setDifficulty] = useState(null);
+    const [selectedSong, setSelectedSong] = useState(0);
     const [options, setOptions] = useState([]);
     const [guessesLeft, setGuessesLeft] = useState(3);
-    const [guess, setGuess] = useState(null);
+    const [score, setScore] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
-    const [timeLeft, setTimeLeft] = useState(30);
+    const [audio, setAudio] = useState(null);
+    const [originalTimeLimit, setOriginalTimeLimit] = useState(0);
+    const [showWin, setShowWin] = useState(false);
+    const [showLose, setShowLose] = useState(false);
+    const [showCorrectGuess, setShowCorrectGuess] = useState(false);
+    const navigate = useNavigate();
+    const [timeLeft, { startCountdown, resetCountdown }] = useCountdown(originalTimeLimit, 1000);
+    const catAPI = `https://api.thecatapi.com/v1/images/search?api_key=${process.env.REACT_APP_CAT_API_KEY}`;
+    const [catUrl, setCatUrl] = useState(null);
 
     useEffect(() => {
         const token = window.localStorage.getItem("token");
         if (token) {
             spotifyApi.setAccessToken(token);
             // Get the user's top 50 songs from Spotify
-            spotifyApi.getMyTopTracks({ time_range: "long_term", limit: 50 }).then((response) => {
-                setSongs(response.items);
-            });
+            spotifyApi
+                .getMyTopTracks({ time_range: "long_term", limit: 5 })
+                .then((response) => {
+                    setSongs(response.items);
+                });
         }
-        
     }, []);
 
+    function shuffle(array) {
+        let currentIndex = array.length, randomIndex;
+
+        // While there remain elements to shuffle.
+        while (currentIndex !== 0) {
+
+            // Pick a remaining element.
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex--;
+
+            // And swap it with the current element.
+            [array[currentIndex], array[randomIndex]] = [
+                array[randomIndex], array[currentIndex]];
+        }
+
+        return array;
+    }
+
+    const getCatPic = () => {
+        fetch(catAPI).then(response => response.json()).then(result => setCatUrl(result[0].url))
+    }
+
     const startGame = (level) => {
-        // Select a random song from the user's top 50
-        const randomIndex = Math.floor(Math.random() * songs.length);
-        const song = songs[randomIndex];
-        setSelectedSong(song);
+        setScore(0);
+        setSongs(shuffle(songs));
+        // Set the time limit based on the selected level
+        let timeLimit = 0;
+        if (level === "easy") {
+            timeLimit = 30;
+        } else if (level === "medium") {
+            timeLimit = 20;
+        } else if (level === "hard") {
+            timeLimit = 10;
+        }
+        setOriginalTimeLimit(timeLimit);
+
+    };
+
+    const handleOptionClick = (option) => {
+        // A guess has been made, check if it's correct
+        if (option.id === songs[selectedSong].id) {
+            // Correct guess, reset state
+            setOptions([]);
+            setGuessesLeft(3);
+            audio.pause();
+            setIsPlaying(false);
+            setScore((prevScore) => prevScore + 1);
+            setShowCorrectGuess(score + 1 !== songs.length); // only show if not the last song
+        } else {
+            // Incorrect guess, decrement guessesLeft and reset state
+            setGuessesLeft((prevGuessesLeft) => prevGuessesLeft - 1);
+        }
+    };
+
+    useEffect(() => {
+        if (songs.length > 0 && score === songs.length) {
+            // Game win, reset state
+            setOptions([]);
+            setGuessesLeft(3);
+            audio.pause();
+            setIsPlaying(false);
+            setShowWin(true);
+        }
+    }, [score, songs]);
+
+    useEffect(() => {
+        if (guessesLeft === 0) {
+            // Game over, reset state
+            setOptions([]);
+            setGuessesLeft(3);
+            audio.pause();
+            setIsPlaying(false);
+            setShowLose(true);
+        }
+    }, [guessesLeft, audio]);
+
+    const handleNextSong = (nextSong) => {
+        setShowCorrectGuess(false);
+        setSelectedSong(nextSong);
+        const song = songs[nextSong];
+        getCatPic();
 
         // Get a list of three other random songs as options
         const otherSongs = songs.filter((s) => s.id !== song.id);
@@ -41,86 +201,141 @@ function SongGuessingGame() {
         }
         setOptions([...randomOptions, song].sort(() => Math.random() - 0.5));
 
-        // Start playing the selected song
+        // Set the audio source and start playing
         const audio = new Audio(song.preview_url);
-        audio.play();
-        setIsPlaying(true);
-
-        // Set a timer for 30 seconds
-        if (level === 'easy') {
-            setTimeLeft(30);
-        }
-        if (level === 'medium') {
-            setTimeLeft(20);
-        }
-        if (level === 'hard') {
-            setTimeLeft(10);
-        }
-        
-        const timer = setInterval(() => {
-            setTimeLeft((prevTimeLeft) => prevTimeLeft - 1);
-        }, 1000);
-
-        // When the timer ends, stop playing the song and prompt for guess
-        setTimeout(() => {
-            clearInterval(timer);
-            audio.pause();
+        audio.onerror = (error) => {
+            console.error(error);
             setIsPlaying(false);
-            setGuess(null);
-            setGuessesLeft((prevGuessesLeft) => prevGuessesLeft - 1);
-        }, 30000);
-    };
-
-    const handleOptionClick = (option) => {
-        setGuess(option.id === selectedSong.id);
-    };
+        };
+        setAudio(audio);
+        setIsPlaying(true);
+        audio.play();
+        resetCountdown();
+        startCountdown();
+    }
 
     useEffect(() => {
-        if (guessesLeft === 0) {
-            // Game over, reset state
-            setSelectedSong(null);
-            setOptions([]);
-            setGuessesLeft(3);
-        } else if (guess !== null) {
-            // A guess has been made, check if it's correct
-            if (guess) {
-                // Correct guess, reset state
-                setSelectedSong(null);
-                setOptions([]);
-                setGuessesLeft(3);
-            } else {
-                // Incorrect guess, decrement guessesLeft and reset state
-                setGuessesLeft((prevGuessesLeft) => prevGuessesLeft - 1);
-                setGuess(null);
-            }
+        if (difficulty) {
+            handleNextSong(0);
         }
-    }, [guess, guessesLeft]);
+    }, [originalTimeLimit, difficulty])
+
+    useEffect(() => {
+        if (isPlaying && timeLeft === 0) {
+            audio.pause();
+            setIsPlaying(false);
+        }
+    }, [timeLeft, isPlaying, audio])
 
     return (
-        <div>
-            {selectedSong ? (
+        <>
+            {!difficulty && (
+                <div className="difficulty-level">
+                    <Button
+                        type="primary"
+                        size="large"
+                        onClick={() => {
+                            setDifficulty("easy");
+                            startGame("easy");
+                        }}
+                        style={{ background: "#18ac4d", padding: "0 8px" }}
+                    >
+                        Easy
+                    </Button>
+                    <Button
+                        type="primary"
+                        size="large"
+                        onClick={() => {
+                            setDifficulty("medium");
+                            startGame("medium");
+                        }}
+                        style={{ background: "#eab308" }}
+                    >
+                        Medium
+                    </Button>
+                    <Button
+                        type="primary"
+                        size="large"
+                        onClick={() => {
+                            setDifficulty("hard");
+                            startGame("hard");
+                        }}
+                        style={{ background: "#ef4444" }}
+                    >
+                        Hard
+                    </Button>
+                </div>
+            )}
+            {difficulty && (
                 <div>
                     <h2>Guess the song!</h2>
                     <p>{timeLeft} seconds left</p>
-                    <p>{selectedSong.artists[0].name} - {selectedSong.name}</p>
-                    <p>{isPlaying ? "Playing..." : "Paused"}</p>
+                    {/* <p>
+                        {selectedSong.artists[0].name} - {selectedSong.name}
+                    </p> */}
                     <ul>
                         {options.map((option) => (
-                            <li key={option.id} onClick={() => handleOptionClick(option)}>
+                            <li
+                                className="song-options"
+                                key={option.id}
+                                onClick={() => handleOptionClick(option)}
+                            >
                                 {option.artists[0].name} - {option.name}
                             </li>
                         ))}
                     </ul>
                     <p>Guesses left: {guessesLeft}</p>
+                    <p>Score: {score}</p>
+                    <Modal open={showLose}
+                        title="You've Lost"
+                        footer={[
+                            <Button key="home" onClick={() => navigate("/")}>
+                                Home
+                            </Button>
+                        ]}
+                    >
+                        <p>You've lost the game!</p>
+                        <Image
+                            width="100%"
+                            src="/LossCat.png"
+                        />
+                    </Modal>
+                    <Modal open={showWin}
+                        title="Congrats!"
+                        footer={[
+                            <Button key="home" onClick={() => navigate("/")}>
+                                Home
+                            </Button>
+                        ]}
+                    >
+                        <p>You've beat the game!</p>
+                        <Image
+                            width="100%"
+                            src={catUrl}
+                        />
+                    </Modal>
+                    <Modal open={showCorrectGuess}
+                        title="Yay!"
+                        footer={[
+                            <Button key="home" onClick={() => navigate("/")}>
+                                Home
+                            </Button>,
+                            <Button key="next" onClick={() => handleNextSong(selectedSong + 1)}>
+                                Next
+                            </Button>
+                        ]}
+                    >
+                        <Image
+                            width="100%"
+                            src={catUrl}
+                        />
+                    </Modal>
                 </div>
-            ) : (
-                <div>
-                    <button onClick={() => startGame('easy')}>Easy</button>
-                    <button onClick={() => startGame('medium')}>Medium</button>
-                    <button onClick={() => startGame('hard')}>Hard</button>
-                </div>
-            )}
-        </div>
+
+            )
+            }
+
+        </>
     );
 }
 

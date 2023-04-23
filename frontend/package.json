@@ -9,6 +9,7 @@
     "antd": "^5.2.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-router-dom": "^6.8.1",
     "react-player": "^2.12.0",
     "react-scripts": "5.0.1",
     "spotify-web-api-js": "^1.5.2",
@@ -38,7 +39,5 @@
       "last 1 safari version"
     ]
   },
-  "devDependencies": {
-    "react-router-dom": "^6.8.1"
-  }
+  "devDependencies": {}
 }
