@@ -103,7 +103,7 @@ function SongGuessingGame() {
             spotifyApi.setAccessToken(token);
             // Get the user's top 50 songs from Spotify
             spotifyApi
-                .getMyTopTracks({ time_range: "long_term", limit: 50 })
+                .getMyTopTracks({ time_range: "long_term", limit: 10 })
                 .then((response) => {
                     setSongs(response.items);
                 });
@@ -301,7 +301,7 @@ function SongGuessingGame() {
                         <p>You've lost the game!</p>
                         <Image
                             height="70vh"
-                            src="/SadCat.jpg"
+                            src="/VerySadCat.png"
                         />
                     </Modal>
                     <Modal open={showWin}
@@ -316,7 +316,7 @@ function SongGuessingGame() {
                         <p>You've beat the game!</p>
                         <Image
                             height="70vh"
-                            src={catUrl}
+                            src="/logocat.png"
                         />
                     </Modal>
                     <Modal open={showCorrectGuess}

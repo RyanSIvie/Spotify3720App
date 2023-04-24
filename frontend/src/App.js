@@ -65,7 +65,7 @@ function App() {
       <Header className="header">
         <Row justify="space-between">
           <Col span={4}>
-            <Tooltip title="Help">
+            <Tooltip title="Game created by Cats for Brains: Elisa Lin, Duong Nyguen, Yash Patel, Ryan Ivie">
               <Button shape="circle" icon={<InfoCircleOutlined />} />
             </Tooltip>
           </Col>
@@ -86,7 +86,7 @@ function App() {
         </BrowserRouter>
         <Outlet />
       </Content>
-      <Footer>Footer</Footer>
+      {/* <Footer>Footer</Footer> */}
     </Layout>
   );
 }
