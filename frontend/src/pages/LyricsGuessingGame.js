@@ -206,7 +206,7 @@ function LyricsGuessingGame() {
                     <p>Guesses left: {guessesLeft}</p>
                     <p>Score: {score}</p>
                     <Modal open={showLose}
-                        title="You've Lost"
+                        title="You've Lost. Try again next time!"
                         closable={false}
                         footer={[
                             <Button key="home" onClick={() => navigate("/")}>
@@ -214,14 +214,13 @@ function LyricsGuessingGame() {
                             </Button>
                         ]}
                     >
-                        <p>You've lost the game!</p>
                         <Image
                             height="70vh"
                             src="/VerySadCat.png"
                         />
                     </Modal>
                     <Modal open={showWin}
-                        title="Congrats!"
+                        title="Congrats! You've beat the game!"
                         closable={false}
                         footer={[
                             <Button key="home" onClick={() => navigate("/")}>
@@ -229,7 +228,7 @@ function LyricsGuessingGame() {
                             </Button>
                         ]}
                     >
-                        <p>You've beat the game!</p>
+                        <p>Try the other modes!</p>
                         <Image
                             height="70vh"
                             src="/logocat.png"
