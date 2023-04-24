@@ -4,13 +4,13 @@ Guessify was created for CPSC 3720 - Introduction to Software Development by Rya
 ## Intro/User Guide
 
 ### What is Guessify?
-web based app made w react. purpose is a game on how well you know your music history
+Web based app made to test how well you know your music history.
 
 ### How does Guessify work?
-Guessify uses Spotify's API to get the top 50 tracks you have been listening to and 50 playlists. Using our code, a game is made using those tracks and playlists.
+Guessify uses Spotify's API to get the top 50 tracks you have been listening to. Using our code, a game is made using those tracks.
 
 ### How do I use Guessify?
-All you need to do is login with Spotify. You will then be able to play the two game modes provided, Song Guessing and Playlist Guessing, with three difficulty modes. 
+All you need to do is login with Spotify. You will then be able to play the two game modes provided, Song Guessing and Lyrics Guessing, with three difficulty modes. 
 
 ## Dev Quickstart Guide
 
@@ -32,4 +32,4 @@ Start the servers in both the frontend and backend folders, run:
 `npm start`
 
 ## Modifying Code
-We used the JS framework React and Express
+We used the JS framework React and Express.
