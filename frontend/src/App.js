@@ -8,8 +8,9 @@ import Home from "./pages/Home";
 import SelectGame from "./pages/SelectGame";
 import { useState, useEffect } from "react";
 import SpotifyWebApi from 'spotify-web-api-js';
-import SongGuessingGame from "./pages/SongGuesingGame";
-import PlaylistGuessingGame from "./pages/PlaylistGuessingGame";
+import SongGuessingGame from "./pages/SongGuessingGame";
+// import PlaylistGuessingGame from "./pages/PlaylistGuessingGame";
+import LyricsGuessingGame from "./pages/LyricsGuessingGame";
 
 
 const { Header, Footer, Content } = Layout;
@@ -80,7 +81,7 @@ function App() {
             <Route index element={!token ? <Home /> : <Navigate to="/select-game" />} />
             <Route path="select-game" element={token ? <SelectGame /> : <Navigate to="/" />} />
             <Route path="song-guessing-game" element={token ? <SongGuessingGame /> : <Navigate to="/" />} />
-            <Route path="playlist-guessing-game" element={token ? <PlaylistGuessingGame /> : <Navigate to="/" />} />
+            <Route path="lyrics-guessing-game" element={token ? <LyricsGuessingGame /> : <Navigate to="/" />} />
           </Routes>
         </BrowserRouter>
         <Outlet />

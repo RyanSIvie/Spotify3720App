@@ -7,7 +7,7 @@ const SelectGame = () => {
                 <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
                     <h1>Choose your game!</h1>
                     <Link to="/song-guessing-game"><Button type="primary" size='large' block>Top 50 Songs</Button></Link>
-                    <Link to="/playlist-guessing-game"><Button type="primary" size='large' block>What's that Playlist?</Button></Link>
+                    <Link to="/lyrics-guessing-game"><Button type="primary" size='large' block>Where's That Lyric From?</Button></Link>
                 </Space>
             </Col>
         </Row>

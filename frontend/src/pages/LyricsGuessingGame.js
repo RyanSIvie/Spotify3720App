@@ -1,99 +1,24 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import SpotifyWebApi from "spotify-web-api-js";
 import { Button, Modal, Image } from "antd";
 import axios from "axios";
 
 const spotifyApi = new SpotifyWebApi();
-function useInterval(callback, delay) {
-    const savedCallback = useRef(callback)
 
-    // Remember the latest callback if it changes.
-    useEffect(() => {
-        savedCallback.current = callback
-    }, [callback])
-
-    useEffect(() => {
-        if (!delay && delay !== 0) {
-            return;
-        }
-        const interval = setInterval(() => savedCallback.current(), delay);
-        return () => clearInterval(interval);
-    }, [delay])
-}
-
-function useCounter(initialValue) {
-    const [count, setCount] = useState(initialValue || 0)
-
-    const increment = () => setCount(x => x + 1)
-    const decrement = () => setCount(x => x - 1)
-    const reset = () => setCount(initialValue || 0)
-
-    return {
-        count,
-        increment,
-        decrement,
-        reset,
-        setCount,
-    }
-}
-
-function useBoolean(defaultValue) {
-    const [value, setValue] = useState(!!defaultValue)
-
-    const setTrue = useCallback(() => setValue(true), [])
-    const setFalse = useCallback(() => setValue(false), [])
-    const toggle = useCallback(() => setValue(x => !x), [])
-
-    return { value, setValue, setTrue, setFalse, toggle }
-}
-
-function useCountdown(countStart, intervalMs) {
-    const {
-        count,
-        decrement,
-        reset: resetCounter,
-    } = useCounter(countStart)
-
-    const {
-        value: isCountdownRunning,
-        setTrue: startCountdown,
-        setFalse: stopCountdown,
-    } = useBoolean(false)
-
-    const resetCountdown = () => {
-        stopCountdown()
-        resetCounter()
-    }
-
-    const countdownCallback = useCallback(() => {
-        if (count === 0) {
-            stopCountdown()
-            return
-        }
-        decrement()
-    }, [count, decrement, stopCountdown])
-
-    useInterval(countdownCallback, isCountdownRunning ? intervalMs : null)
-
-    return [count, { startCountdown, stopCountdown, resetCountdown }]
-}
-
-function SongGuessingGame() {
+function LyricsGuessingGame() {
     const [songs, setSongs] = useState([]);
     const [difficulty, setDifficulty] = useState(null);
     const [selectedSong, setSelectedSong] = useState(0);
     const [options, setOptions] = useState([]);
     const [guessesLeft, setGuessesLeft] = useState(3);
     const [score, setScore] = useState(0);
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [audio, setAudio] = useState(null);
-    const [originalTimeLimit, setOriginalTimeLimit] = useState(0);
+    const [lyricPercent, setLyricPercent] = useState(1);
+    const [songLyrics, setSongLyrics] = useState("");
     const [showWin, setShowWin] = useState(false);
     const [showLose, setShowLose] = useState(false);
     const [showCorrectGuess, setShowCorrectGuess] = useState(false);
     const navigate = useNavigate();
-    const [timeLeft, { startCountdown, resetCountdown }] = useCountdown(originalTimeLimit, 1000);
     const catAPI = `https://api.thecatapi.com/v1/images/search?api_key=${process.env.REACT_APP_CAT_API_KEY}`;
     const [catUrl, setCatUrl] = useState(null);
 
@@ -133,30 +58,39 @@ function SongGuessingGame() {
         return response.data[0].url;
     }
 
+    const getSongLyrics = async (song) => {
+        const isrc = song.external_ids.isrc;
+        let response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/track?track_isrc=${isrc}`);
+        const id = response.data.message.body.track.track_id;
+        response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/track/lyrics?track_id=${id}`);
+        const lyrics = response.data.message?.body?.lyrics?.lyrics_body || '';
+        const words = lyrics.replace("******* This Lyrics is NOT for Commercial use", "").split(" ");
+        const lastIndex = words.length * lyricPercent - 1;
+        return words.slice(0, lastIndex).join(" ");
+    }
+
     const startGame = (level) => {
         setScore(0);
         setSongs(shuffle(songs));
-        // Set the time limit based on the selected level
-        let timeLimit = 0;
+        // Set the percentage of lyrics shown based on the selected level
+        let lyricPercentage = 0;
         if (level === "easy") {
-            timeLimit = 30;
+            lyricPercentage = 1;
         } else if (level === "medium") {
-            timeLimit = 20;
+            lyricPercentage = 0.5;
         } else if (level === "hard") {
-            timeLimit = 10;
+            lyricPercentage = 0.3;
         }
-        setOriginalTimeLimit(timeLimit);
-
+        setLyricPercent(lyricPercentage);
     };
 
     const handleOptionClick = (option) => {
         // A guess has been made, check if it's correct
+        console.log(`${selectedSong}: ${option.id} =?= ${songs[selectedSong].id} (${songs[selectedSong].name})`);
         if (option.id === songs[selectedSong].id) {
             // Correct guess, reset state
             setOptions([]);
             setGuessesLeft(3);
-            audio.pause();
-            setIsPlaying(false);
             setScore((prevScore) => prevScore + 1);
             setShowCorrectGuess(score + 1 !== songs.length); // only show if not the last song
         } else {
@@ -170,8 +104,6 @@ function SongGuessingGame() {
             // Game win, reset state
             setOptions([]);
             setGuessesLeft(3);
-            audio.pause();
-            setIsPlaying(false);
             setShowWin(true);
         }
     }, [score, songs]);
@@ -181,19 +113,24 @@ function SongGuessingGame() {
             // Game over, reset state
             setOptions([]);
             setGuessesLeft(3);
-            audio.pause();
-            setIsPlaying(false);
             setShowLose(true);
         }
-    }, [guessesLeft, audio]);
+    }, [guessesLeft]);
 
     const handleNextSong = async (nextSong) => {
+        const song = songs[nextSong];
+        const newSongLyrics = await getSongLyrics(song);
+        if (!newSongLyrics) {
+            setScore((prevScore) => prevScore + 1);
+            handleNextSong(nextSong + 1);
+            return;
+        }
+        setSongLyrics(newSongLyrics);
         setShowCorrectGuess(false);
         setSelectedSong(nextSong);
-        const song = songs[nextSong];
         setCatUrl(await getCatPic());
 
-        console.info(`${song.artists[0].name} - ${song.name}`);
+        console.info(`correct answer: ${song.artists[0].name} - ${song.name}`);
         // Get a list of three other random songs as options
         const otherSongs = songs.filter((s) => s.id !== song.id);
         const randomOptions = [];
@@ -203,32 +140,14 @@ function SongGuessingGame() {
             otherSongs.splice(randomIndex, 1);
         }
         setOptions([...randomOptions, song].sort(() => Math.random() - 0.5));
-
-        // Set the audio source and start playing
-        const audio = new Audio(song.preview_url);
-        audio.onerror = (error) => {
-            console.error(error);
-            setIsPlaying(false);
-        };
-        setAudio(audio);
-        setIsPlaying(true);
-        audio.play();
-        resetCountdown();
-        startCountdown();
     }
 
     useEffect(() => {
         if (difficulty) {
             handleNextSong(0);
         }
-    }, [originalTimeLimit, difficulty])
+    }, [lyricPercent, difficulty])
 
-    useEffect(() => {
-        if (isPlaying && timeLeft === 0) {
-            audio.pause();
-            setIsPlaying(false);
-        }
-    }, [timeLeft, isPlaying, audio])
 
     return (
         <>
@@ -272,10 +191,7 @@ function SongGuessingGame() {
             {difficulty && (
                 <div>
                     <h2>Guess the song!</h2>
-                    <p>{timeLeft} seconds left</p>
-                    {/* <p>
-                        {selectedSong.artists[0].name} - {selectedSong.name}
-                    </p> */}
+                    <pre>{songLyrics}</pre>
                     <ul>
                         {options.map((option) => (
                             <li
@@ -336,6 +252,7 @@ function SongGuessingGame() {
                             src={catUrl}
                         />
                     </Modal>
+                    <script type="text/javascript" src="http://tracking.musixmatch.com/t1.0/AMa6hJCIEzn1v8RuOP"></script>
                 </div>
 
             )
@@ -343,6 +260,7 @@ function SongGuessingGame() {
 
         </>
     );
+
 }
 
-export default SongGuessingGame;
+export default LyricsGuessingGame;
