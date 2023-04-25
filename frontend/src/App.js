@@ -70,7 +70,7 @@ function App() {
             </Tooltip>
           </Col>
           <Col span={4}>
-            <div><a href="/">Guessify</a></div>
+            <div style={{ fontSize: "2em", }}><a href="/">Guessify</a></div>
           </Col>
           <Col style={{ color: "white" }} span={4}>{user.display_name || user.id}</Col>
         </Row>
