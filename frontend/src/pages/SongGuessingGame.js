@@ -270,8 +270,9 @@ function SongGuessingGame() {
                 </div>
             )}
             {difficulty && (
-                <div>
-                    <h2>Guess the song!</h2>
+                <div style={{width: "80%", margin: "auto"}}>
+                    <h2 style={{textAlign: "center"}}>Guess the song!</h2>
+                    <h1 style={{textAlign: "right"}}>Score: {score}</h1>
                     <p>{timeLeft} seconds left</p>
                     {/* <p>
                         {selectedSong.artists[0].name} - {selectedSong.name}
@@ -280,6 +281,7 @@ function SongGuessingGame() {
                         {options.map((option) => (
                             <li
                                 className="song-options"
+                                style={{backgroundColor: "teal", margin: "15px", padding: "10px", maxWidth: "300px", borderRadius: "5px", cursor: "pointer", color: "#fff"}}
                                 key={option.id}
                                 onClick={() => handleOptionClick(option)}
                             >
@@ -287,10 +289,10 @@ function SongGuessingGame() {
                             </li>
                         ))}
                     </ul>
-                    <p>Guesses left: {guessesLeft}</p>
-                    <p>Score: {score}</p>
+                    <h2 style={{textAlign: "center"}}>Guesses left: {guessesLeft}</h2>
+                    
                     <Modal open={showLose}
-                        title="You've Lost. Try again next time!"
+
                         closable={false}
                         footer={[
                             <Button key="home" onClick={() => navigate("/")}>
@@ -298,13 +300,14 @@ function SongGuessingGame() {
                             </Button>
                         ]}
                     >
+                        <h1 style={{textAlign: "center", fontWeight: "bold"}}>You've Lost. Try again next time!</h1>
                         <Image
                             height="70vh"
                             src="/VerySadCat.png"
                         />
                     </Modal>
                     <Modal open={showWin}
-                        title="Congrats! You've beat the game!"
+                        
                         closable={false}
                         footer={[
                             <Button key="home" onClick={() => navigate("/")}>
@@ -312,14 +315,15 @@ function SongGuessingGame() {
                             </Button>
                         ]}
                     >
-                        <p>Try the other modes!</p>
+                        <h1 style={{textAlign: "center", fontWeight: "bold"}}>Congrats! You've beat the game!!</h1>
+                        <p style={{textAlign: "center"}}>Try the other modes!</p>
                         <Image
                             height="70vh"
                             src="/logocat.png"
                         />
                     </Modal>
                     <Modal open={showCorrectGuess}
-                        title="Yay!"
+                        
                         closable={false}
                         footer={[
                             <Button key="home" onClick={() => navigate("/")}>
@@ -330,6 +334,7 @@ function SongGuessingGame() {
                             </Button>
                         ]}
                     >
+                        <h1 style={{textAlign: "center", fontWeight: "bold"}}>Yay!</h1>
                         <Image
                             height="70vh"
                             src={catUrl}
