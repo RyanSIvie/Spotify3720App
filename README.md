@@ -28,13 +28,7 @@ For security reasons, none of the API keys are included. Visit the following sit
 To start both the frontend and the backend, copy the .env.sample files, rename them to .env, and fill in the blanks
 
 ### Start
-Start the servers in both the frontend and backend folders, open two different terminals and for terminal 1 run:
-`cd .\frontend\.`
-`npm start`
-
-For terminal 2:
-`cd .\backend\.`
-`npm start`
+Start the servers in both the frontend and backend folders, open two different terminals, one for the frontend folder and one for the backend folder, then run `npm start` in both terminals
 
 ## Modifying Code
 We used the JS framework React and Express.
