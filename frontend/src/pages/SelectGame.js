@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button, Row, Col, Space } from 'antd';
+
 const SelectGame = () => {
     return (
         <Row>

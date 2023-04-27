@@ -22,10 +22,6 @@ function App() {
 
   const [token, setToken] = useState("");
   const [user, setUser] = useState({});
-  //const [top50Tracks, setTop50Tracks] = useState({items: [{}]});
-  //const [id, setId] = useState(0);
-
-  //const navigate = useNavigate();
 
   useEffect(() => {
     const hash = window.location.hash
@@ -49,12 +45,6 @@ function App() {
         setUser(data);
       });
 
-      //navigate('/mode');
-
-      /*spotifyApi.getMyTopTracks({ time_range: "long_term", limit: 50 }).then(function (data) {
-        
-        setTop50Tracks(data);
-      });*/
     }
 
 
@@ -86,7 +76,6 @@ function App() {
         </BrowserRouter>
         <Outlet />
       </Content>
-      {/* <Footer>Footer</Footer> */}
     </Layout>
   );
 }
