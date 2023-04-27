@@ -32,3 +32,7 @@ Start the servers in both the frontend and backend folders, open two different t
 
 ## Modifying Code
 We used the JS framework React and Express.
+
+### Documentation
+- Mockup: https://drive.google.com/file/d/1XcXqhtVgscWSK8a8xApu98FE5IuIwRa3/view?usp=sharing
+- User Stories: https://tasks.office.com/Clemson.onmicrosoft.com/en-US/Home/Planner#/plantaskboard?groupId=bde942a1-e4e1-4843-8ad2-4b1fc69bb0cf&planId=CO3HNVzQVkyufxNFmgBRCGQAEsnX
