@@ -16,8 +16,7 @@ All you need to do is login with Spotify. You will then be able to play the two 
 
 ### Installation
 - Install node.js
-- Install the dependencies in both the frontend and the backend folders, run:
-`npm install` or `npm i`
+- Install the dependencies for both the frontend and backend apps by running `npm install` or `npm i` in both the frontend and the backend folders.
 
 ### .env API Keys
 For security reasons, none of the API keys are included. Visit the following sites to sign up for the API keys: 
